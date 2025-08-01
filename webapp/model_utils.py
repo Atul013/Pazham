@@ -5,17 +5,6 @@ from PIL import Image
 from torchvision import models, transforms
 import torch.nn as nn
 
-# Define model at module level
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = None
-
-def load_model():
-    global model
-    if model is None:
-        model = BananaNet().to(device)
-        model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'best_model.pth')
-        model.load_state_dict(torch.load(model_path, map_location=device))
-        model.eval()
 
 # Original function, renamed for flexibility
 def predict_from_image_full(model, image_path):
@@ -39,19 +28,11 @@ def predict_from_image_full(model, image_path):
         }
 
 # Wrapper for compatibility with app.py
+
+
 def predict_from_image(image_path):
-    global model
-    load_model()  # Ensure model is loaded
-    image_tensor = preprocess_image(image_path).to(device)
-    
-    with torch.no_grad():
-        predictions = model(image_tensor)
-        seed_count = int(round(predictions[0][0].item()))
-        curvature = round(predictions[0][1].item(), 1)
-        return {
-            'seeds': seed_count,
-            'curvature': curvature
-        }
+    return predict_from_image_full(model, image_path)
+
 
 def preprocess_image(image_path):
     transform = transforms.Compose([
