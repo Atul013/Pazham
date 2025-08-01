@@ -74,12 +74,15 @@ Current model metrics on synthetic data:
 Note: These metrics are based on synthetic training data. Performance may vary with real-world data.
 
 # Screenshots
+![3](https://github.com/user-attachments/assets/c5d8c609-2515-45b2-8423-5dd5a94a8deb)
+Displays training progress and loss metrics during model training.   <br><br><br>
+
 ![1](https://github.com/user-attachments/assets/3fe1baf1-7142-44cd-9164-443e93fe948a)
 Select or capture a banana image to predict seed count and curvature.  <br><br><br>
 
 
 ![2](https://github.com/user-attachments/assets/489dd5e4-a178-4045-bcee-4403d28a2f5d)
-Displays predicted seed count and curvature angle after analysis.   <br><br><br>
+Displays predicted seed count and curvature angle after analysis.   <br><br>
 
 
 
