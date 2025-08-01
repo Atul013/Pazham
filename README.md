@@ -1,12 +1,22 @@
-# Banana Feature Predictor
-
+# Pazham     🎯
 A machine learning model that predicts multiple features of a banana based on its physical characteristics:
 1. Number of seeds
 2. Curvature (in degrees)
 
+
+## Basic Details
+### Team Name: (AB)²
+
+
+### Team Members
+- Team Lead: Atul Biju - Adi Shankara Institute of Engineering and Technology
+- Member 2: Amal Babu - Adi Shankara Institute of Engineering and Technology
+
+
 ## Overview
 
 This project uses a Random Forest Regressor to predict multiple banana characteristics based on various physical features. The model achieves good accuracy (R² scores > 0.80) on synthetic data and can be retrained with real-world data.
+
 
 ## Features
 
