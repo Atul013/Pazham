@@ -1,3 +1,5 @@
+<img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
+
 # Pazham     🎯
 A machine learning model that predicts multiple features of a banana based on its physical characteristics:
 1. Number of seeds
@@ -70,6 +72,9 @@ Current model metrics on synthetic data:
 - R² Score: 0.80
 
 Note: These metrics are based on synthetic training data. Performance may vary with real-world data.
+
+# Screenshots
+
 
 ## Future Improvements
 
