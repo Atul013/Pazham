@@ -38,3 +38,36 @@ button:hover {
 input[type="file"] {
     margin-top: 1rem;
 }
+
+.minion-gif {
+    display: block;
+    margin: 1rem auto;
+    width: 200px;
+    animation: bounce 2s infinite;
+}
+
+.fun-button {
+    background-color: #fbc02d;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 12px;
+    margin-top: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.fun-button:hover {
+    background-color: #f9a825;
+    transform: scale(1.1) rotate(5deg);
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}

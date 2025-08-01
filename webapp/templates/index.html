@@ -9,15 +9,16 @@
 <body>
     <div class="container">
         <h1>Banana Feature Predictor</h1>
+        <img src="{{ url_for('static', filename='source.gif') }}" alt="Dancing Minion" class="minion-gif" />
         <p>Upload an image or capture from your camera to predict seed count and curvature.</p>
         <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
             <input type="file" name="image" accept="image/*" required />
-            <button type="submit">Upload Image</button>
+            <button type="submit" class="fun-button">Upload Image</button>
         </form>
 
         <h2>Or capture from camera</h2>
         <video id="video" width="320" height="240" autoplay></video>
-        <button id="snap">Capture</button>
+        <button id="snap" class="fun-button">Capture</button>
         <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
         <form id="cameraForm" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" style="display:none;">
             <input type="file" id="cameraImage" name="image" accept="image/*" />
