@@ -1,18 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Prediction Result</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-</head>
-<body>
+    <title>Prediction Result - Banana Feature Predictor</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="container">
-        <h1>Prediction Result</h1>
-        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" width="320" />
-        <p><strong>Predicted Seed Count:</strong> {{ result.seeds }}</p>
-        <p><strong>Predicted Curvature:</strong> {{ result.curvature }}°</p>
-        <a href="{{ url_for('index') }}">Try another image</a>
+      <h1><i class="fas fa-chart-bar"></i> Analysis Results</h1>
+
+      <div class="result-card">
+        <div class="image-section">
+          <img
+            src="{{ url_for('static', filename='uploads/' + filename) }}"
+            alt="Analyzed Banana"
+            class="result-image"
+          />
+        </div>
+
+        <div class="predictions-section">
+          <div class="prediction-item">
+            <i class="fas fa-seedling"></i>
+            <h3>Seed Count</h3>
+            <p class="prediction-value">{{ result.seeds }}</p>
+          </div>
+
+          <div class="prediction-item">
+            <i class="fas fa-ruler-combined"></i>
+            <h3>Curvature</h3>
+            <p class="prediction-value">{{ result.curvature }}°</p>
+          </div>
+        </div>
+      </div>
+
+      <a href="{{ url_for('index') }}" class="fun-button back-button">
+        <i class="fas fa-arrow-left"></i> Analyze Another Banana
+      </a>
     </div>
-</body>
+  </body>
 </html>

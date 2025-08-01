@@ -1,29 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Banana Feature Predictor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="container">
-        <h1>Banana Feature Predictor</h1>
-        <img src="{{ url_for('static', filename='source.gif') }}" alt="Dancing Minion" class="minion-gif" />
-        <p>Upload an image or capture from your camera to predict seed count and curvature.</p>
-        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-            <input type="file" name="image" accept="image/*" required />
-            <button type="submit" class="fun-button">Upload Image</button>
-        </form>
+      <header>
+        <h1><i class="fas fa-banana"></i> Banana Feature Predictor</h1>
+        <img
+          src="{{ url_for('static', filename='source.gif') }}"
+          alt="Dancing Minion"
+          class="minion-gif"
+        />
+        <p class="description">
+          Upload an image or use your camera to predict banana seed count and
+          curvature
+        </p>
+      </header>
 
-        <h2>Or capture from camera</h2>
-        <video id="video" width="320" height="240" autoplay></video>
-        <button id="snap" class="fun-button">Capture</button>
-        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-        <form id="cameraForm" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" style="display:none;">
+      <div class="upload-section">
+        <div class="upload-card">
+          <h2><i class="fas fa-upload"></i> Upload Image</h2>
+          <form
+            action="{{ url_for('upload') }}"
+            method="post"
+            enctype="multipart/form-data"
+            class="upload-form"
+          >
+            <div class="file-input-wrapper">
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                required
+                id="fileInput"
+              />
+              <label for="fileInput" class="file-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Choose a file or drag it here</span>
+              </label>
+            </div>
+            <button type="submit" class="fun-button">
+              <i class="fas fa-arrow-right"></i> Analyze Image
+            </button>
+          </form>
+        </div>
+
+        <div class="camera-card">
+          <h2><i class="fas fa-camera"></i> Use Camera</h2>
+          <div class="camera-wrapper">
+            <video id="video" width="320" height="240" autoplay></video>
+            <button id="snap" class="fun-button">
+              <i class="fas fa-camera"></i> Capture Photo
+            </button>
+          </div>
+          <canvas
+            id="canvas"
+            width="320"
+            height="240"
+            style="display: none"
+          ></canvas>
+          <form
+            id="cameraForm"
+            action="{{ url_for('upload') }}"
+            method="post"
+            enctype="multipart/form-data"
+            style="display: none"
+          >
             <input type="file" id="cameraImage" name="image" accept="image/*" />
-        </form>
+          </form>
+        </div>
+      </div>
     </div>
     <script src="{{ url_for('static', filename='camera.js') }}"></script>
-</body>
+  </body>
 </html>
