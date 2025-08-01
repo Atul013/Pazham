@@ -1,4 +1,6 @@
-# Pazham     🎯
+<img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
+
+# Pazham     🍌
 A machine learning model that predicts multiple features of a banana based on its physical characteristics:
 1. Number of seeds
 2. Curvature (in degrees)
@@ -71,14 +73,28 @@ Current model metrics on synthetic data:
 
 Note: These metrics are based on synthetic training data. Performance may vary with real-world data.
 
+# Screenshots
+![1](https://github.com/user-attachments/assets/3fe1baf1-7142-44cd-9164-443e93fe948a)
+Select or capture a banana image to predict seed count and curvature.  <br><br><br>
+
+
+![2](https://github.com/user-attachments/assets/489dd5e4-a178-4045-bcee-4403d28a2f5d)
+Displays predicted seed count and curvature angle after analysis.   <br><br><br>
+
+
+
 ## Future Improvements
 
 - Replace synthetic data with real banana measurements
 - Add image processing to automatically extract features
 - Implement cross-validation
 - Add visualization of feature importance
-- Create a simple web interface for predictions
 
 ## License
 
 [MIT License](LICENSE)
+
+Made with ❤️ at TinkerHub Useless Projects 
+
+![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
+![Static Badge](https://img.shields.io/badge/UselessProjects--25-25?link=https%3A%2F%2Fwww.tinkerhub.org%2Fevents%2FQ2Q1TQKX6Q%2FUseless%2520Projects)
