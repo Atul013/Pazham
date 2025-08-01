@@ -1,20 +1,27 @@
-# Banana Seed Predictor
+# Banana Feature Predictor
 
-A machine learning model that predicts the number of seeds in a banana based on its physical characteristics.
+A machine learning model that predicts multiple features of a banana based on its physical characteristics:
+1. Number of seeds
+2. Curvature (in degrees)
 
 ## Overview
 
-This project uses a Random Forest Regressor to predict the number of seeds in a banana based on various physical features. The model achieves approximately 80% accuracy (R² score) on synthetic data and can be retrained with real-world data.
+This project uses a Random Forest Regressor to predict multiple banana characteristics based on various physical features. The model achieves good accuracy (R² scores > 0.80) on synthetic data and can be retrained with real-world data.
 
 ## Features
 
-The model takes into account the following banana characteristics:
+### Input Features
+The model takes the following measurements as input:
 - Length (centimeters)
 - Width (centimeters)
 - Weight (grams)
 - Ripeness level (scale 1-5)
 - Color (1=green, 2=yellow, 3=brown)
-- Curvature (degrees)
+
+### Predictions
+The model predicts:
+1. Number of seeds
+2. Curvature (degrees)
 
 ## Requirements
 
@@ -34,14 +41,16 @@ The model is implemented in a Jupyter notebook (`model.ipynb`). To use it:
 
 Example usage:
 ```python
-predicted_seeds = predict_seeds(
+predictions = predict_banana_features(
     length=16,    # cm
     width=3.2,    # cm
     weight=130,   # g
     ripeness=4,   # scale 1-5
-    color=2,      # yellow
-    curvature=40  # degrees
+    color=2       # yellow
 )
+
+print(f"Predicted seeds: {predictions['seeds']}")
+print(f"Predicted curvature: {predictions['curvature']}°")
 ```
 
 ## Model Performance
