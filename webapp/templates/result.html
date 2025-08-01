@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="container">
+        <h1>Prediction Result</h1>
+        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" width="320" />
+        <p><strong>Predicted Seed Count:</strong> {{ result.seeds }}</p>
+        <p><strong>Predicted Curvature:</strong> {{ result.curvature }}°</p>
+        <a href="{{ url_for('index') }}">Try another image</a>
+    </div>
+</body>
+</html>
