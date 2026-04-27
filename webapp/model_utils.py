@@ -92,37 +92,85 @@ def predict_from_image(image_path: str) -> dict:
         seeds          (int estimated)
         seeds_range    (str e.g. "220 – 310")
         confidence     (str high/medium/low)
+        banana_type    (str variety/type detected)
         notes          (str extra commentary)
         visual_clues   (str colour/texture observations)
+        roast          (str savage one-liner roast)
+        recommendations (list[str] 3 funny suggestions)
         error          (str only if something went wrong)
     """
     try:
         b64_image = _encode_image_b64(image_path)
 
-        prompt = """You are a banana analysis expert. Carefully look at the image and respond ONLY with a valid JSON object — no markdown fences, no explanation, no extra text.
+        prompt = """You are PazhamAI — a savage banana expert and world-class Malayalam roast comedian. Analyze the image and respond ONLY with a valid JSON object. No markdown fences, no explanation, no extra text.
 
-The JSON must follow this exact schema:
+The JSON must follow this EXACT schema:
 {
   "is_banana": true or false,
   "ripeness": integer 1-5 or null,
   "confidence": "high" or "medium" or "low",
-  "visual_clues": "brief description of colour, spots, texture seen in image",
-  "notes": "any other relevant observation (variety, freshness, defects, etc.)"
+  "banana_type": "e.g. Cavendish, Robusta, Nendran, Red Banana, Lady Finger, Ney Poovan, Baby Banana, or Unknown",
+  "visual_clues": "brief colour/texture description of what you see",
+  "notes": "any extra observation (freshness, defects, etc.)",
+  "roast": "one savage, witty, single-sentence roast WRITTEN IN MALAYALAM (see rules below)"
 }
 
-Ripeness scale (match to training data labels):
-  1 = Unripe         (fully green skin)
-  2 = Slightly Unripe (mostly green, starting to turn yellow)
-  3 = Semi-Ripe      (yellow with green tips or patches)
-  4 = Ripe           (fully yellow, possibly tiny brown flecks)
-  5 = Overripe       (heavy brown/black spots or fully brown/black)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VARIETY-AWARE RIPENESS — CRITICAL:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-If the image does NOT contain a banana:
-  - set "is_banana" to false
-  - set "ripeness" to null
-  - set "confidence" based on how certain you are it is NOT a banana
-  - briefly describe what you see in "visual_clues"
-  - leave "notes" as an empty string
+NEVER judge ripeness by colour alone. Different varieties have different ripe colours:
+
+  Robusta / Ney Poovan / Hill Banana (Kerala varieties):
+    - Ripe (4) = skin stays GREEN or pale green — they NEVER turn yellow!
+    - Signs of ripeness: slightly soft texture, rounded plump shape, no hard firmness
+    - Overripe (5) = skin turns brown or black, mushy feel
+
+  Nendran / Plantain (Kerala cooking banana — large, ribbed):
+    - Ripe (4) = greenish-yellow to golden yellow, skin slightly thick
+    - Overripe (5) = brown patches, very soft
+
+  Cavendish (standard supermarket banana):
+    - Unripe (1) = green, Ripe (4) = fully yellow, Overripe (5) = brown spots
+
+  Red Banana / Cheruvaazha:
+    - Ripe (4) = deep red/maroon/purple — NOT yellow
+    - Unripe (1-2) = bright reddish-green, very firm
+    - Overripe (5) = brownish-red with soft mushy spots
+
+  Lady Finger / Baby Banana:
+    - Ripe (4) = golden yellow, smaller and slender
+
+Ripeness scale (apply AFTER identifying variety):
+  1 = Unripe          (hard, starchy — not ready for THIS variety)
+  2 = Slightly Unripe (close but not there yet)
+  3 = Semi-Ripe       (borderline — edible but not peak)
+  4 = Ripe            (perfect for this variety's expected appearance)
+  5 = Overripe        (past peak — mushy, heavy browning/blackening)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ROAST RULES — MUST BE IN MALAYALAM:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IF is_banana = false:
+  - Roast the person for uploading a non-banana image to a BANANA AI. Mention what you actually see.
+  - Write roast in Malayalam. Example: "ഇത് വാഴപ്പഴം അല്ല, പിന്നെ എന്തിനാ ഇവിടെ കൊണ്ടുവന്നത്?"
+  - set ripeness = null, banana_type = null
+
+IF is_banana = true — roast in Malayalam based on ripeness:
+  Level 1 (Unripe): Roast for impatience.
+    Example: "ഇത് ഇനിയും പഴുക്കണ്ടതാണ്, ക്ഷമ ഇല്ലേ നിനക്ക്?"
+  Level 2 (Slightly Unripe): Almost-there roast.
+    Example: "കൊഞ്ചം കൂടി കാത്തിരുന്നാൽ മതിയായിരുന്നു, ആർക്കും ക്ഷമയില്ല."
+  Level 3 (Semi-Ripe): Middle-ground roast.
+    Example: "ഇടത്തരം പഴം — ജീവിതം പോലെ, ഒന്നുമില്ല, ഒന്നും ശരിയുമല്ല."
+  Level 4 (Ripe): Rare praise with a twist.
+    Example: "ശരിയായി പഴുത്തു! ഇത് ഒരു അത്ഭുതം തന്നെ, അഭിനന്ദനങ്ങൾ."
+  Level 5 (Overripe): Brutal neglect roast.
+    Example: "ഈ പഴം നിന്നെ കാത്ത് കാത്ത് ചത്തു, നിനക്ക് ലജ്ജ തോന്നണം."
+  Also reference banana TYPE if relevant, e.g., "ഇത് ഒരു റൊബസ്റ്റ ആണ്, പച്ചയാണ് എങ്കിലും നന്നായി പഴുത്തതാണ്."
+
+ROAST must be ONE sentence only. Fluent, natural Malayalam. Funny and punchy.
 
 Return ONLY the JSON. No markdown. No backticks."""
 
@@ -145,8 +193,8 @@ Return ONLY the JSON. No markdown. No backticks."""
                     ],
                 }
             ],
-            temperature=0.1,   # low temperature for deterministic JSON output
-            max_tokens=512,
+            temperature=0.75,  # higher temperature for creative, funny roasts
+            max_tokens=1024,
         )
 
         raw = response.choices[0].message.content.strip()
@@ -168,8 +216,11 @@ Return ONLY the JSON. No markdown. No backticks."""
                 "seeds": None,
                 "seeds_range": "N/A",
                 "confidence": data.get("confidence", "high"),
+                "banana_type": None,
                 "notes": data.get("notes", ""),
                 "visual_clues": data.get("visual_clues", ""),
+                "roast": data.get("roast", "That's definitely not a banana. Bold choice uploading it here."),
+                "recommendations": [],
                 "error": None,
             }
 
@@ -179,6 +230,10 @@ Return ONLY the JSON. No markdown. No backticks."""
 
         seeds, seeds_range = _estimate_seeds(ripeness)
 
+        recs = data.get("recommendations", [])
+        if not isinstance(recs, list):
+            recs = []
+
         return {
             "is_banana": True,
             "ripeness": ripeness,
@@ -187,8 +242,11 @@ Return ONLY the JSON. No markdown. No backticks."""
             "seeds": seeds,
             "seeds_range": seeds_range,
             "confidence": data.get("confidence", "medium"),
+            "banana_type": data.get("banana_type", "Unknown"),
             "notes": data.get("notes", ""),
             "visual_clues": data.get("visual_clues", ""),
+            "roast": data.get("roast", ""),
+            "recommendations": recs,
             "error": None,
         }
 
@@ -215,7 +273,10 @@ def _error_result(msg: str) -> dict:
         "seeds": None,
         "seeds_range": "N/A",
         "confidence": "low",
+        "banana_type": None,
         "notes": "",
         "visual_clues": "",
+        "roast": "",
+        "recommendations": [],
         "error": msg,
     }

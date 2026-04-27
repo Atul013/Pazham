@@ -151,6 +151,136 @@
 
       /* Stat grid — only 1 card now (seed count) */
       .stat-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
+
+      /* Banana type badge */
+      .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: rgba(255,193,7,0.12);
+        color: #FFC107;
+        border: 1px solid rgba(255,193,7,0.4);
+        margin-top: 0.4rem;
+      }
+
+      /* Funny recommendations */
+      .funny-card {
+        margin-top: 1.8rem;
+        border-radius: 18px;
+        padding: 1.4rem 1.5rem;
+        background: linear-gradient(135deg,
+          rgba(255,215,0,0.07) 0%,
+          rgba(255,140,0,0.05) 50%,
+          rgba(255,87,34,0.05) 100%);
+        border: 1.5px solid rgba(255,215,0,0.22);
+        position: relative;
+        overflow: hidden;
+      }
+      .funny-card::before {
+        content: "😂";
+        position: absolute;
+        right: 1rem;
+        top: 0.8rem;
+        font-size: 2.4rem;
+        opacity: 0.12;
+        pointer-events: none;
+      }
+      .funny-card-title {
+        font-family: 'Baloo 2', cursive;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #FFD700;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        letter-spacing: 0.04em;
+      }
+      .funny-rec-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .funny-rec-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        font-size: 0.87rem;
+        color: #d4a843;
+        line-height: 1.55;
+        padding: 0.55rem 0.75rem;
+        border-radius: 10px;
+        background: rgba(255,215,0,0.05);
+        border-left: 3px solid transparent;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .funny-rec-list li:hover {
+        border-left-color: #FFD700;
+        background: rgba(255,215,0,0.10);
+      }
+      .funny-rec-list li .rec-num {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(255,215,0,0.2);
+        border: 1px solid rgba(255,215,0,0.5);
+        color: #FFD700;
+        font-size: 0.7rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.1rem;
+      }
+      /* Roast box */
+      .roast-box {
+        margin: 1.2rem 0 0;
+        border-radius: 14px;
+        padding: 1.1rem 1.3rem;
+        background: linear-gradient(135deg,
+          rgba(239,68,68,0.12) 0%,
+          rgba(249,115,22,0.08) 100%);
+        border: 1.5px solid rgba(239,68,68,0.35);
+        position: relative;
+        overflow: hidden;
+      }
+      .roast-box::before {
+        content: "🔥";
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.10;
+        pointer-events: none;
+      }
+      .roast-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #f87171;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .roast-text {
+        font-family: 'Baloo 2', cursive;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #fca5a5;
+        line-height: 1.5;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -183,6 +313,12 @@
             {{ result.ripeness_desc }}
             {% if result.notes %}<br/><em>{{ result.notes }}</em>{% endif %}
           </p>
+          {% if result.roast %}
+          <div class="roast-box" style="text-align:left; max-width:480px; margin:1.2rem auto 0;">
+            <div class="roast-label"><i class="fas fa-fire"></i> PazhamAI Roasts You</div>
+            <p class="roast-text">"{{ result.roast }}"</p>
+          </div>
+          {% endif %}
         </div>
 
       {# ── BANANA DETECTED ─────────────────────────────────── #}
@@ -212,6 +348,13 @@
                 <i class="fas fa-eye" style="margin-right:.3rem; color:#FFD700;"></i>{{ result.visual_clues }}
               </p>
               {% endif %}
+
+              {% if result.roast %}
+              <div class="roast-box">
+                <div class="roast-label"><i class="fas fa-fire"></i> PazhamAI Roasts You</div>
+                <p class="roast-text">"{{ result.roast }}"</p>
+              </div>
+              {% endif %}
             </div>
 
             <!-- Right: stats -->
@@ -226,6 +369,14 @@
                   Level {{ result.ripeness }} / 5
                 </span>
               </div>
+              {% if result.banana_type and result.banana_type != 'Unknown' %}
+              <div style="margin-bottom:.6rem;">
+                <span class="type-badge">
+                  <i class="fas fa-tag" style="font-size:.7rem;"></i>
+                  {{ result.banana_type }}
+                </span>
+              </div>
+              {% endif %}
 
               <div class="ripeness-bar-wrap">
                 <div class="ripeness-bar-track">
@@ -265,6 +416,9 @@
             </div>
 
           </div>
+
+
+
         </div>
       {% endif %}
 
