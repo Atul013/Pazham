@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story — Pazham</title>
+  <meta name="description" content="How a TinkerHub hackathon themed around useless projects turned into Pazham — a banana seed-count and curvature predictor.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root{--bg:#0b0906;--cream:#fdfbf3;--ink:#1a1408;--gold:#f5c800;--muted:rgba(0,0,0,.45);
+          --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',sans-serif;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--cream);font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+    #topnav{display:flex;align-items:center;justify-content:space-between;padding:28px 7vw;
+            background:var(--bg);}
+    .tn-brand{font-family:var(--serif);font-size:.9rem;letter-spacing:.3em;color:#fff;text-decoration:none;}
+    .tn-links{display:flex;gap:28px;}
+    .tn-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.62rem;
+                letter-spacing:.18em;text-transform:uppercase;}
+    .tn-links a:hover{color:var(--gold);}
+    @media(max-width:640px){ #topnav{padding:20px 5vw;flex-direction:column;gap:14px;} }
+
+    main{max-width:720px;margin:0 auto;padding:80px 26px 100px;}
+    h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,5vw,3.2rem);
+       margin-bottom:1.4rem;line-height:1.1;}
+    h1 em{font-style:italic;color:#c79e00;}
+    p{font-size:1rem;line-height:1.75;color:rgba(0,0,0,.65);margin-bottom:1.3rem;}
+    .lead{font-family:var(--serif);font-size:1.3rem;color:var(--ink);line-height:1.5;margin-bottom:2rem;}
+    .meta{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#c79e00;margin-bottom:2.5rem;}
+    blockquote{border-left:none;background:rgba(245,200,0,.07);border-radius:12px;
+               padding:24px 28px;margin:2rem 0;font-family:var(--serif);font-size:1.15rem;
+               line-height:1.55;color:var(--ink);}
+    h2{font-family:var(--serif);font-weight:400;font-size:1.4rem;margin:2.6rem 0 1rem;color:var(--ink);}
+    .person{color:#c79e00;text-decoration:none;border-bottom:1px solid rgba(199,158,0,.35);
+             transition:border-color .2s ease;}
+    .person:hover{border-bottom-color:#c79e00;}
+
+    footer{background:var(--bg);text-align:center;padding:50px 20px;}
+    footer .mk{font-family:var(--serif);font-weight:300;font-size:1.2rem;letter-spacing:.34em;color:#fff;}
+    footer .tg{display:block;margin-top:9px;font-size:.56rem;letter-spacing:.36em;
+               text-transform:uppercase;color:rgba(245,200,0,.7);}
+    .ft-copy{margin-top:22px;font-size:.62rem;color:rgba(255,255,255,.3);}
+  </style>
+</head>
+<body>
+
+<nav id="topnav">
+  <a href="{{ url_for('index') }}" class="tn-brand">PAZHAM</a>
+  <div class="tn-links">
+    <a href="{{ url_for('index') }}#app">Analyzer</a>
+    <a href="{{ url_for('about') }}">Our Story</a>
+    <a href="{{ url_for('team') }}">Team</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Built for <em>useless</em> projects night</h1>
+  <p class="meta">TinkerHub Hackathon &middot; Built overnight, no sleep</p>
+
+  <p class="lead">It started with a notice on the wall.</p>
+
+  <p><a class="person" href="https://www.linkedin.com/in/atul-biju" target="_blank" rel="noopener">Atul</a> and <a class="person" href="https://www.linkedin.com/in/aml02/" target="_blank" rel="noopener">Amal</a> spotted a flyer for an overnight hackathon happening in college, organised by TinkerHub. They'd both been putting off hackathons for way too long. This was the one.</p>
+
+  <p>The theme: <strong>useless projects.</strong> They had to build something genuinely, wonderfully pointless.</p>
+
+  <p>Their classmate Arpitha turned out to be the TinkerHub campus lead &mdash; she's the one who told them about it and got them in the door. They signed up, then spent the next while brainstorming the most gloriously useless thing they could build.</p>
+
+  <p>Out of several questionable ideas, one stuck: <em>what if they counted the number of seeds in a banana?</em></p>
+
+  <p>Think about it. In Kerala, nendran bananas get eaten constantly. They all have seeds. Those seeds are completely useless &mdash; nobody eats them, nobody cares about them, and absolutely nobody is going to sit there and count them. It was the perfect useless project.</p>
+
+  <h2>No dataset? Buy the bananas.</h2>
+  <p>Here's where it got real. They checked Kaggle for a dataset. Nothing. So they did what any two people with a deadline would do &mdash; they went and <strong>bought a bunch of nendran bananas</strong>, photographed each one individually, split them open by hand, and counted every single seed themselves. That was their ground-truth dataset.</p>
+
+  <p>From there, they pulled banana images off Kaggle, augmented the data, and predicted seed counts for about 2,000 other bananas. They trained the model, tested it, verified it worked. The name came to them while they were sitting there splitting open bananas at 3am &mdash; <em>Pazham.</em> Banana, in Malayalam. It has a certain ring to it.</p>
+
+  <p>Meanwhile, every other team was asleep.</p>
+
+  <blockquote>They didn't win. They still think it was because they couldn't deploy it in time and the mentors were no help. But honestly? They'd worked through the night, built something real from scratch, made people smile, and learned more than they expected to. That's a win.</blockquote>
+
+  <h2>What actually happened at 6am</h2>
+  <p>Submission time hit, and everything had to be hosted. Neither of them had deployed a model on a deadline before. The "mentors" assigned to help were glorified seniors who were just as lost. They tried Vercel &mdash; the free tier couldn't handle the model size. They tried everything they could think of. Nothing worked in time, so they submitted the repo link and demoed it live instead.</p>
+
+  <p>When they showed it to the room, faces lit up. Most novel, most genuinely useless, most memorable project of the night &mdash; that's what people said. They didn't win the hackathon. But they built something that made a room full of sleep-deprived strangers laugh at 6am, and shipped it for real afterward: this site is that project, properly deployed.</p>
+</main>
+
+<footer>
+  <div class="mk">PAZHAM</div>
+  <span class="tg">Banana Intelligence</span>
+  <p class="ft-copy">&copy; {{ current_year }} Pazham. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,87 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Banana Feature Predictor</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1><i class="fas fa-banana"></i> Banana Feature Predictor</h1>
-        <img
-          src="{{ url_for('static', filename='source.gif') }}"
-          alt="Dancing Minion"
-          class="minion-gif"
-        />
-        <p class="description">
-          Upload an image or use your camera to predict banana seed count and
-          curvature
-        </p>
-      </header>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pazham — Banana Intelligence</title>
+  <meta name="description" content="Pazham analyzes a photo of a banana and predicts its seed count and curvature in seconds — upload an image or use your camera.">
+  <meta property="og:title" content="Pazham — Banana Intelligence">
+  <meta property="og:description" content="Upload a banana photo and get instant seed-count and curvature predictions.">
+  <meta property="og:image" content="{{ url_for('static', filename='2.png') }}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root{
+      --bg:#0b0906; --cream:#fdfbf3; --ink:#1a1408; --gold:#f5c800;
+      --muted:rgba(0,0,0,.4);
+      --serif:'Fraunces',Georgia,serif; --sans:'Inter','Helvetica Neue',sans-serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:auto;}
+    body{background:var(--bg);font-family:var(--sans);color:var(--ink);
+         overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 
-      <div class="upload-section">
-        <div class="upload-card">
-          <h2><i class="fas fa-upload"></i> Upload Image</h2>
-          <form
-            action="{{ url_for('upload') }}"
-            method="post"
-            enctype="multipart/form-data"
-            class="upload-form"
-          >
-            <div class="file-input-wrapper">
-              <input
-                type="file"
-                name="image"
-                accept="image/*"
-                required
-                id="fileInput"
-              />
-              <label for="fileInput" class="file-label">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Choose a file or drag it here</span>
-              </label>
-            </div>
-            <button type="submit" class="fun-button">
-              <i class="fas fa-arrow-right"></i> Analyze Image
-            </button>
-          </form>
-        </div>
+    /* ════════ HERO (canvas frame-sequence scrub) ════════ */
+    #hero{height:520vh;position:relative;}
+    #stage{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;background:var(--bg);}
 
-        <div class="camera-card">
-          <h2><i class="fas fa-camera"></i> Use Camera</h2>
-          <div class="camera-wrapper">
-            <video id="video" width="320" height="240" autoplay></video>
-            <button id="snap" class="fun-button">
-              <i class="fas fa-camera"></i> Capture Photo
-            </button>
-          </div>
-          <canvas
-            id="canvas"
-            width="320"
-            height="240"
-            style="display: none"
-          ></canvas>
-          <form
-            id="cameraForm"
-            action="{{ url_for('upload') }}"
-            method="post"
-            enctype="multipart/form-data"
-            style="display: none"
-          >
-            <input type="file" id="cameraImage" name="image" accept="image/*" />
-          </form>
-        </div>
-      </div>
+    #fc{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+    /* preloader — locks scroll until the frame sequence is cached,
+       so a fast scroll before frames arrive can't desync the scrub */
+    #loader{
+      position:absolute;inset:0;z-index:50;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+      background:var(--bg);
+      transition:opacity .7s cubic-bezier(.2,.7,.2,1);
+    }
+    #loader.is-hidden{opacity:0;pointer-events:none;}
+    #loader .lmark{font-family:var(--serif);font-weight:300;font-size:.8rem;
+                   letter-spacing:.5em;text-indent:.5em;color:rgba(255,255,255,.82);}
+    #loader .lbar{width:180px;height:2px;background:rgba(255,255,255,.12);
+                  border-radius:2px;overflow:hidden;}
+    #loader .lbar span{display:block;height:100%;width:0%;background:var(--gold);
+                       transition:width .3s cubic-bezier(.2,.7,.2,1);}
+    #loader .lpct{font-size:.58rem;letter-spacing:.2em;color:rgba(255,255,255,.4);
+                  font-variant-numeric:tabular-nums;}
+    @media (prefers-reduced-motion: reduce){
+      #loader{transition:none;}
+      #loader .lbar span{transition:none;}
+    }
+
+    /* cinematic vignette */
+    #stage::after{
+      content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+      background:
+        radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.5) 100%),
+        linear-gradient(to bottom,rgba(0,0,0,.45) 0%,transparent 24%,transparent 68%,rgba(11,9,6,.9) 100%);
+    }
+
+    /* ════════ HERO UI ════════ */
+    .hud{position:absolute;inset:0;z-index:5;pointer-events:none;}
+    #brand{position:absolute;top:50%;left:7vw;transform:translateY(-50%);
+           text-align:left;will-change:opacity,transform;}
+    #brand h1{
+      font-family:var(--serif);font-weight:300;
+      font-size:clamp(2rem,4.4vw,3.6rem);letter-spacing:.30em;text-indent:.30em;
+      line-height:1.05;color:#fff;text-shadow:0 2px 50px rgba(0,0,0,.7);
+    }
+    #brand .sub{margin-top:.9rem;font-size:.58rem;font-weight:400;letter-spacing:.4em;
+                text-transform:uppercase;color:rgba(255,255,255,.55);}
+    @media(max-width:640px){
+      #brand{left:0;width:100%;text-align:center;top:9vh;transform:none;}
+      #brand h1{font-size:clamp(2.2rem,9vw,3rem);letter-spacing:.28em;text-indent:.28em;}
+    }
+
+    #lead{position:absolute;bottom:16vh;width:100%;text-align:center;padding:0 8vw;
+          will-change:opacity,transform;opacity:0;}
+    #lead p{font-family:var(--serif);font-weight:300;font-size:clamp(1.1rem,2.6vw,1.9rem);
+            line-height:1.4;color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.7);}
+
+    #scrollHint{position:absolute;bottom:5vh;width:100%;text-align:center;
+                font-size:.56rem;letter-spacing:.42em;text-transform:uppercase;
+                color:rgba(255,255,255,.5);will-change:opacity;}
+    #scrollHint::after{content:'';display:block;margin:8px auto 0;width:1px;height:30px;
+                       background:linear-gradient(to bottom,rgba(255,255,255,.6),transparent);
+                       animation:pulse 2.2s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:.3;transform:scaleY(.8);}50%{opacity:.9;transform:scaleY(1.2);}}
+
+    #prog{position:absolute;left:0;bottom:0;height:2px;width:0%;background:var(--gold);
+          z-index:6;box-shadow:0 0 12px rgba(245,200,0,.6);}
+
+    /* ════════ APP ════════ */
+    #app{position:relative;z-index:10;
+         background:radial-gradient(130% 70% at 50% 0%, #fffefb 0%, var(--cream) 58%);
+         border-radius:32px 32px 0 0;margin-top:-32px;
+         box-shadow:0 -30px 90px rgba(0,0,0,.55);overflow:hidden;}
+
+    /* eyebrow with flank rules */
+    .eyebrow{display:flex;align-items:center;justify-content:center;gap:16px;padding-top:78px;}
+    .eyebrow span{font-size:.58rem;letter-spacing:.44em;text-transform:uppercase;color:var(--muted);}
+    .eyebrow i{width:36px;height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.22));}
+    .eyebrow i:last-child{background:linear-gradient(to left,transparent,rgba(0,0,0,.22));}
+
+    .ahdr{text-align:center;padding:20px 40px 6px;}
+    .ahdr h2{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4.6vw,3.2rem);
+             letter-spacing:.004em;color:var(--ink);line-height:1.08;}
+    .ahdr h2 em{font-style:italic;color:#c79e00;}
+    .ahdr p{margin:1rem auto 0;font-size:.9rem;color:var(--muted);max-width:470px;line-height:1.65;}
+
+    /* steps */
+    .steps{max-width:940px;margin:56px auto 0;padding:0 26px;
+           display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+    .step{position:relative;padding:32px 24px;text-align:center;border-radius:12px;
+          background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.05);
+          transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,background .45s ease;}
+    .step:hover{transform:translateY(-6px);background:#fff;box-shadow:0 22px 48px rgba(140,105,0,.10);}
+    .step .n{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;
+             border-radius:50%;border:1px solid rgba(199,158,0,.4);color:#c79e00;
+             font-family:var(--serif);font-size:1.05rem;margin-bottom:16px;}
+    .step h4{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:9px;color:var(--ink);}
+    .step p{font-size:.78rem;color:var(--muted);line-height:1.6;}
+    @media(max-width:640px){.steps{grid-template-columns:1fr;}}
+
+    /* cards */
+    .abody{max-width:940px;margin:0 auto;padding:66px 26px 24px;
+           display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+    @media(max-width:640px){.abody{grid-template-columns:1fr;}}
+    .card{position:relative;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;
+          padding:36px;box-shadow:0 12px 34px rgba(0,0,0,.04);overflow:hidden;
+          display:flex;flex-direction:column;
+          transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease;}
+    .card form{flex:1;display:flex;flex-direction:column;}
+    .card form .btn{margin-top:auto;}
+    #snap{margin-top:auto;}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;
+                  background:linear-gradient(to right,transparent,var(--gold),transparent);
+                  transition:opacity .45s ease;}
+    .card:hover{transform:translateY(-7px);box-shadow:0 30px 64px rgba(0,0,0,.11);}
+    .card:hover::before{opacity:1;}
+    .card h3{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+             margin-bottom:28px;display:flex;align-items:center;gap:12px;}
+    .card h3 i{color:var(--ink);font-size:.82rem;background:var(--gold);
+               width:30px;height:30px;border-radius:9px;
+               display:flex;align-items:center;justify-content:center;}
+
+    /* drop zone */
+    .fdrop{border:1.5px dashed rgba(0,0,0,.16);border-radius:14px;text-align:center;
+           cursor:pointer;transition:all .3s ease;margin-bottom:14px;background:transparent;
+           aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;
+           padding:20px;}
+    .fdrop:hover{border-color:var(--gold);
+                 background:linear-gradient(rgba(245,200,0,.06),rgba(245,200,0,.02));}
+    .fdrop .ico{font-size:2rem;color:rgba(0,0,0,.18);margin-bottom:12px;
+                transition:transform .3s ease,color .3s ease;}
+    .fdrop:hover .ico{transform:translateY(-4px);color:#d4ab00;}
+    .fdrop .lbl{font-size:.78rem;color:var(--muted);}
+    .fdrop .hint{display:block;margin-top:6px;font-size:.6rem;letter-spacing:.1em;
+                 text-transform:uppercase;color:rgba(0,0,0,.26);}
+    .fdrop input[type=file]{display:none;}
+    #fnm{font-size:.7rem;color:#c79e00;margin-bottom:14px;min-height:1.1em;font-weight:500;}
+
+    /* button */
+    .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;
+         background:var(--ink);color:var(--gold);border:none;
+         font-family:var(--sans);font-size:.64rem;font-weight:500;letter-spacing:.26em;
+         text-transform:uppercase;cursor:pointer;border-radius:10px;
+         transition:background .3s ease,gap .3s ease;}
+    .btn:hover{background:#2c2010;gap:16px;}
+    .btn i{font-size:.7rem;transition:transform .3s ease;}
+    .btn:hover i{transform:translateX(3px);}
+
+    /* camera */
+    .cprev{position:relative;background:#0e0b07;border-radius:12px;overflow:hidden;margin-bottom:14px;
+           aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;}
+    .cprev .ph{position:absolute;display:flex;flex-direction:column;align-items:center;gap:8px;
+               color:rgba(255,255,255,.2);font-size:1.5rem;z-index:0;}
+    .cprev .ph small{font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;}
+    #video{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1;}
+
+    /* nav — fixed so it survives scroll, fades from transparent (on the hero)
+       to a solid blurred bar once content scrolls underneath it */
+    #topnav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;
+            align-items:center;justify-content:space-between;padding:26px 7vw;
+            background:transparent;
+            transition:background .4s cubic-bezier(.2,.7,.2,1),
+                       padding .4s cubic-bezier(.2,.7,.2,1),
+                       box-shadow .4s ease;}
+    #topnav::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+                    background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,transparent 100%);
+                    opacity:1;transition:opacity .4s ease;}
+    #topnav.scrolled{background:rgba(11,9,6,.82);padding-top:16px;padding-bottom:16px;
+                     box-shadow:0 8px 30px rgba(0,0,0,.25);
+                     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+    #topnav.scrolled::before{opacity:0;}
+    .tn-brand{font-family:var(--serif);font-weight:300;font-size:.92rem;letter-spacing:.32em;
+              line-height:1;color:#fff;text-decoration:none;}
+    .tn-links{display:flex;align-items:center;gap:30px;}
+    .tn-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.62rem;
+                letter-spacing:.18em;text-transform:uppercase;line-height:1;
+                transition:color .25s ease;}
+    .tn-links a:hover{color:var(--gold);}
+    @media (prefers-reduced-motion: reduce){
+      #topnav{transition:none;}
+      #topnav::before{transition:none;}
+    }
+    @media(max-width:640px){
+      #topnav{padding:18px 5vw;}
+      #topnav.scrolled{padding-top:12px;padding-bottom:12px;}
+      .tn-brand{font-size:.78rem;letter-spacing:.26em;}
+      .tn-links{gap:14px;}
+      .tn-links a{font-size:.5rem;letter-spacing:.1em;}
+    }
+
+    /* flash messages */
+    .flash{max-width:940px;margin:0 auto;padding:14px 26px;text-align:center;}
+    .flash p{background:rgba(199,40,40,.08);color:#8a1f1f;border:1px solid rgba(199,40,40,.2);
+             border-radius:10px;padding:12px 18px;font-size:.8rem;}
+
+    /* camera status + ghost button */
+    .cstatus{font-size:.68rem;color:var(--muted);min-height:1.2em;margin-bottom:10px;text-align:center;}
+    .cstatus.is-error{color:#a83232;}
+    .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid rgba(0,0,0,.16);margin-bottom:10px;}
+    .btn-ghost:hover{background:rgba(0,0,0,.04);}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn:disabled:hover{background:var(--ink);gap:10px;}
+
+    /* footer */
+    footer{background:var(--bg);text-align:center;padding:70px 20px 42px;margin-top:58px;
+           border-top:1px solid rgba(255,255,255,.06);}
+    footer .mk{font-family:var(--serif);font-weight:300;font-size:1.3rem;letter-spacing:.36em;
+               text-indent:.36em;color:#fff;}
+    footer .tg{display:block;margin-top:10px;font-size:.56rem;letter-spacing:.36em;
+               text-transform:uppercase;color:rgba(245,200,0,.7);}
+    .ft-links{margin:34px auto 0;padding-top:26px;max-width:260px;
+              display:flex;justify-content:center;align-items:center;gap:14px;
+              border-top:1px solid rgba(255,255,255,.08);}
+    .ft-links a{color:rgba(255,255,255,.62);text-decoration:none;font-size:.62rem;
+                letter-spacing:.14em;text-transform:uppercase;transition:color .25s ease;}
+    .ft-links a:hover{color:var(--gold);}
+    .ft-links .dot{color:rgba(255,255,255,.22);font-size:.4rem;}
+    .ft-copy{margin-top:28px;font-size:.6rem;color:rgba(255,255,255,.28);letter-spacing:.05em;}
+
+    /* scroll reveal */
+    .reveal{opacity:0;transform:translateY(28px);
+            transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+    .reveal.in{opacity:1;transform:none;}
+  </style>
+</head>
+<body>
+
+<nav id="topnav">
+  <a href="{{ url_for('index') }}" class="tn-brand">PAZHAM</a>
+  <div class="tn-links">
+    <a href="{{ url_for('index') }}#app" id="navAnalyzer">Analyzer</a>
+    <a href="{{ url_for('about') }}">Our Story</a>
+    <a href="{{ url_for('team') }}">Team</a>
+  </div>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<section id="hero">
+  <div id="stage">
+    <canvas id="fc"></canvas>
+    <div id="loader">
+      <div class="lmark">PAZHAM</div>
+      <div class="lbar"><span id="loaderBar"></span></div>
+      <div class="lpct" id="loaderPct">0%</div>
     </div>
-    <script src="{{ url_for('static', filename='camera.js') }}"></script>
-  </body>
+    <div id="prog"></div>
+    <div class="hud">
+      <div id="brand"><h1>PAZHAM</h1><p class="sub">Banana Intelligence</p></div>
+      <div id="lead"><p>Every banana tells a story — its seeds, its curve, its character. We read it.</p></div>
+      <div id="scrollHint">scroll</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ APP ════════ -->
+<main id="app">
+  <div class="eyebrow reveal"><i></i><span>The Analyzer</span><i></i></div>
+  <div class="ahdr reveal">
+    <h2>Analyze Your <em>Banana</em></h2>
+    <p>Upload an image or use your camera, and our model predicts seed count and curvature in seconds.</p>
+  </div>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash reveal">
+        {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  <div class="steps">
+    <div class="step reveal"><span class="n">01</span><h4>Capture</h4><p>Snap a photo or upload an existing banana image.</p></div>
+    <div class="step reveal" style="transition-delay:.09s"><span class="n">02</span><h4>Analyze</h4><p>Our trained model studies the fruit's form.</p></div>
+    <div class="step reveal" style="transition-delay:.18s"><span class="n">03</span><h4>Predict</h4><p>Get seed count and curvature instantly.</p></div>
+  </div>
+  <div class="abody">
+    <div class="card reveal">
+      <h3><i class="fas fa-image"></i> Upload Image</h3>
+      <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+        <label class="fdrop" id="fdrop" for="fi">
+          <div class="ico"><i class="fas fa-cloud-arrow-up"></i></div>
+          <div class="lbl">Choose a file or drag it here<span class="hint">JPG or PNG</span></div>
+          <input type="file" name="image" id="fi" accept="image/*" required>
+        </label>
+        <div id="fnm"></div>
+        <button type="submit" class="btn">Analyze Image <i class="fas fa-arrow-right"></i></button>
+      </form>
+    </div>
+    <div class="card reveal" style="transition-delay:.1s">
+      <h3><i class="fas fa-camera"></i> Use Camera</h3>
+      <div class="cprev">
+        <span class="ph"><i class="fas fa-camera"></i><small>Camera is off</small></span>
+        <video id="video" autoplay playsinline muted></video>
+      </div>
+      <div id="cameraStatus" class="cstatus"></div>
+      <button id="toggleCamera" type="button" class="btn btn-ghost"><i class="fas fa-video"></i> Start Camera</button>
+      <button id="snap" class="btn" disabled>Capture Photo <i class="fas fa-circle-dot"></i></button>
+      <canvas id="canvas" width="320" height="240" style="display:none"></canvas>
+      <form id="cameraForm" action="{{ url_for('upload') }}" method="post"
+            enctype="multipart/form-data" style="display:none">
+        <input type="file" id="cameraImage" name="image" accept="image/*">
+      </form>
+    </div>
+  </div>
+  <footer class="reveal">
+    <div class="mk">PAZHAM</div>
+    <span class="tg">Banana Intelligence</span>
+    <nav class="ft-links">
+      <a href="{{ url_for('about') }}">Our Story</a>
+      <span class="dot">&#9679;</span>
+      <a href="{{ url_for('team') }}">Meet the Team</a>
+    </nav>
+    <p class="ft-copy">&copy; {{ current_year }} Pazham. All rights reserved.</p>
+  </footer>
+</main>
+
+<script src="{{ url_for('static', filename='camera.js') }}"></script>
+<script>
+// ══════════════════════════════════════════════════════
+//  CANVAS FRAME-SEQUENCE SCRUB  (every frame, butter-smooth)
+// ══════════════════════════════════════════════════════
+const FRAME_COUNT = 120;                       // f000 … f119
+const FRAME_URL   = i => `/static/frames/f${String(i).padStart(3,'0')}.jpg`;
+
+const topnav    = document.getElementById('topnav');
+const hero      = document.getElementById('hero');
+const cv        = document.getElementById('fc');
+const cx        = cv.getContext('2d');
+const loader    = document.getElementById('loader');
+const loaderBar = document.getElementById('loaderBar');
+const loaderPct = document.getElementById('loaderPct');
+const brand     = document.getElementById('brand');
+const lead      = document.getElementById('lead');
+const hint      = document.getElementById('scrollHint');
+const prog      = document.getElementById('prog');
+
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const ease  = t=>t<.5?2*t*t:-1+(4-2*t)*t;
+const pr    = (s,a,b)=>clamp((s-a)/(b-a),0,1);
+
+// ── Canvas sizing (devicePixelRatio aware) ──
+let DPR = Math.min(devicePixelRatio||1, 2);
+function resize(){
+  DPR = Math.min(devicePixelRatio||1, 2);
+  cv.width  = innerWidth  * DPR;
+  cv.height = innerHeight * DPR;
+  drawFrame(curFrame);
+}
+addEventListener('resize', resize);
+
+// ── Scroll lock while the sequence loads ──
+// Scrubbing on scroll needs the frame it lands on already cached; scrolling
+// fast before the frames arrive freezes the hero on a stale frame. Locking
+// scroll behind a real loader (not just a spinner) trades a short, visible
+// wait for a scrub that never desyncs.
+const SCROLL_KEYS = new Set(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' ']);
+const preventScroll = e => e.preventDefault();
+const preventScrollKeys = e => { if(SCROLL_KEYS.has(e.key)) e.preventDefault(); };
+
+function lockScroll(){
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  addEventListener('wheel', preventScroll, {passive:false});
+  addEventListener('touchmove', preventScroll, {passive:false});
+  addEventListener('keydown', preventScrollKeys);
+}
+function unlockScroll(){
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+  removeEventListener('wheel', preventScroll, {passive:false});
+  removeEventListener('touchmove', preventScroll, {passive:false});
+  removeEventListener('keydown', preventScrollKeys);
+}
+lockScroll();
+
+// ── Progressive frame loader (batched — never blocks on all 120) ──
+const frames = new Array(FRAME_COUNT);
+let loaded = 0, next = 0, loaderHidden = false;
+const CONCURRENCY = 6;                          // matches browser's per-host cap
+const HARD_TIMEOUT_MS = 10000;                  // never trap the user longer than this
+
+function setProgress(pct){
+  loaderBar.style.width = pct + '%';
+  loaderPct.textContent = pct + '%';
+}
+
+function releaseLoader(){
+  if(loaderHidden) return;
+  loaderHidden = true;
+  unlockScroll();
+  loader.classList.add('is-hidden');
+  setTimeout(()=>loader.style.display='none', 700);
+}
+
+function loadNext(){
+  if(next >= FRAME_COUNT) return;
+  const i = next++;
+  const img = new Image();
+  frames[i] = img;
+  const done = ()=>{
+    loaded++;
+    setProgress(Math.round((loaded / FRAME_COUNT) * 100));
+    if(loaded >= FRAME_COUNT) releaseLoader();
+    loadNext();
+  };
+  img.onload = ()=>{
+    if(i === 0) drawFrame(0);   // banana visible behind the loader immediately
+    done();
+  };
+  img.onerror = done;          // a broken frame never stalls the chain
+  img.src = FRAME_URL(i);
+}
+// kick off CONCURRENCY parallel chains
+for(let k=0;k<CONCURRENCY;k++) loadNext();
+// safety net: never lock scroll longer than this, even on a slow/broken load
+setTimeout(releaseLoader, HARD_TIMEOUT_MS);
+
+// ── Cover-fit draw (with downward bias so the stem clears the top) ──
+const TOP_BIAS = 0.075;   // push content down ~7.5% of viewport height
+function drawFrame(idx){
+  const img = frames[idx];
+  if(!img || !img.complete || !img.naturalWidth) return;
+  const cw=cv.width, ch=cv.height;
+  const ir=img.naturalWidth/img.naturalHeight, cr=cw/ch;
+  let dw,dh,dx,dy;
+  if(cr > ir){ dw=cw; dh=cw/ir; dx=0; dy=(ch-dh)/2; }
+  else       { dh=ch; dw=ch*ir; dy=0; dx=(cw-dw)/2; }
+  dy += ch * TOP_BIAS;                     // shift down → dark headroom up top
+  cx.clearRect(0,0,cw,ch);
+  cx.drawImage(img, dx, dy, dw, dh);
+}
+
+// ── Scroll → frame (with lerp smoothing) ──
+let targetIdx = 0;     // float
+let curIdx    = 0;     // float, eased
+let curFrame  = 0;     // int drawn
+
+function onScroll(){
+  const maxS = hero.offsetHeight - innerHeight;
+  const s = clamp(scrollY / maxS, 0, 1);
+  targetIdx = s * (FRAME_COUNT - 1);
+
+  // ── UI reveals ──
+  const bFade = ease(pr(s,.04,.20));
+  brand.style.opacity   = 1 - bFade;
+  // keep vertical centering (desktop) while drifting up as you scroll in
+  const wide = innerWidth > 640;
+  brand.style.transform = wide
+    ? `translateY(-50%) translateY(${-bFade*40}px)`
+    : `translateY(${-bFade*40}px)`;
+
+  const lIn  = ease(pr(s,.34,.50));
+  const lOut = ease(pr(s,.70,.86));
+  lead.style.opacity   = lIn*(1-lOut);
+  lead.style.transform = `translateY(${(1-lIn)*30 - lOut*30}px)`;
+
+  hint.style.opacity = (1-ease(pr(s,0,.08)))*.6;
+  prog.style.width   = (s*100).toFixed(2)+'%';
+
+  topnav.classList.toggle('scrolled', scrollY > 40);
+}
+addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+
+// ── rAF loop: ease current toward target, draw on change ──
+function loop(){
+  curIdx += (targetIdx - curIdx) * 0.18;       // smoothing
+  const idx = Math.round(curIdx);
+  if(idx !== curFrame && frames[idx] && frames[idx].complete){
+    curFrame = idx;
+    drawFrame(idx);
+  }
+  requestAnimationFrame(loop);
+}
+resize();
+loop();
+
+// ── Nav "Analyzer" link: smooth in-page scroll instead of a full reload ──
+document.getElementById('navAnalyzer').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('app').scrollIntoView({
+    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'start'
+  });
+});
+
+// ══════════════════════════════════════════════════════
+//  FILE INPUT
+// ══════════════════════════════════════════════════════
+document.getElementById('fi').addEventListener('change', function(){
+  document.getElementById('fnm').textContent = this.files[0]?.name || '';
+});
+const fdrop = document.getElementById('fdrop');
+['dragover','dragenter'].forEach(e=>fdrop.addEventListener(e,ev=>{
+  ev.preventDefault(); fdrop.style.borderColor='var(--gold)';
+}));
+['dragleave','drop'].forEach(e=>fdrop.addEventListener(e,()=>{ fdrop.style.borderColor=''; }));
+
+// ── Scroll-reveal for app section ──
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, {threshold:.16, rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
 </html>

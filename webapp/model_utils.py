@@ -67,7 +67,7 @@ def preprocess_image(image_path):
 class BananaNet(nn.Module):
     def __init__(self):
         super(BananaNet, self).__init__()
-        self.base_model = models.resnet18(pretrained=True)
+        self.base_model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
         num_features = self.base_model.fc.in_features
         self.base_model.fc = nn.Identity()
         self.regression_head = nn.Sequential(
@@ -87,10 +87,10 @@ class BananaNet(nn.Module):
 
 
 # Load model and weights
-model = BananaNet()
+model = BananaNet().to(device)
 model_path = os.path.join(os.path.dirname(__file__), '..', 'best_model.pth')
 if os.path.exists(model_path):
-    model.load_state_dict(torch.load(model_path, map_location="cpu"))
+    model.load_state_dict(torch.load(model_path, map_location=device))
     print("Loaded trained model weights from best_model.pth")
 else:
     print("Warning: best_model.pth not found, using untrained model.")

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pth
+venv/
+.venv/
+
+webapp/uploads/
+webapp/static/uploads/
+!webapp/uploads/.gitkeep
+!webapp/static/uploads/.gitkeep

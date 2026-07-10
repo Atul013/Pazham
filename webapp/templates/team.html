@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team — Pazham</title>
+  <meta name="description" content="Meet the people behind Pazham, the banana seed-count and curvature analyzer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%8C%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root{--bg:#0b0906;--cream:#fdfbf3;--ink:#1a1408;--gold:#f5c800;--muted:rgba(0,0,0,.45);
+          --serif:'Fraunces',Georgia,serif;--sans:'Inter','Helvetica Neue',sans-serif;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--cream);font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+    #topnav{display:flex;align-items:center;justify-content:space-between;padding:28px 7vw;
+            background:var(--bg);}
+    .tn-brand{font-family:var(--serif);font-size:.9rem;letter-spacing:.3em;color:#fff;text-decoration:none;}
+    .tn-links{display:flex;gap:28px;}
+    .tn-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.62rem;
+                letter-spacing:.18em;text-transform:uppercase;}
+    .tn-links a:hover{color:var(--gold);}
+    @media(max-width:640px){ #topnav{padding:20px 5vw;flex-direction:column;gap:14px;} }
+
+    main{max-width:940px;margin:0 auto;padding:80px 26px 100px;text-align:center;}
+    h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,5vw,3.2rem);margin-bottom:1rem;}
+    h1 em{font-style:italic;color:#c79e00;}
+    .sub{color:var(--muted);font-size:1rem;max-width:520px;margin:0 auto 3.5rem;line-height:1.6;}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;text-align:left;max-width:680px;margin:0 auto;}
+    @media(max-width:640px){.grid{grid-template-columns:1fr;}}
+    .member{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:32px 28px;
+            box-shadow:0 12px 34px rgba(0,0,0,.04);}
+    .member .avatar{width:56px;height:56px;border-radius:50%;background:var(--ink);color:var(--gold);
+                    display:flex;align-items:center;justify-content:center;font-family:var(--serif);
+                    font-size:1.3rem;margin-bottom:18px;}
+    .member h3{font-size:1.05rem;margin-bottom:4px;}
+    .member .role{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#c79e00;margin-bottom:12px;}
+    .member p{font-size:.85rem;color:rgba(0,0,0,.6);line-height:1.6;}
+    .member .links{margin-top:14px;display:flex;gap:14px;}
+    .member .links a{color:rgba(0,0,0,.4);font-size:.95rem;}
+    .member .links a:hover{color:#c79e00;}
+
+    .credit{max-width:680px;margin:3rem auto 0;padding-top:2.2rem;border-top:1px solid rgba(0,0,0,.08);
+            text-align:left;}
+    .credit p{font-size:.85rem;color:rgba(0,0,0,.55);line-height:1.7;}
+    .credit a{color:#c79e00;text-decoration:none;}
+    .credit a:hover{text-decoration:underline;}
+
+    footer{background:var(--bg);text-align:center;padding:50px 20px;margin-top:70px;}
+    footer .mk{font-family:var(--serif);font-weight:300;font-size:1.2rem;letter-spacing:.34em;color:#fff;}
+    footer .tg{display:block;margin-top:9px;font-size:.56rem;letter-spacing:.36em;
+               text-transform:uppercase;color:rgba(245,200,0,.7);}
+    .ft-copy{margin-top:22px;font-size:.62rem;color:rgba(255,255,255,.3);}
+  </style>
+</head>
+<body>
+
+<nav id="topnav">
+  <a href="{{ url_for('index') }}" class="tn-brand">PAZHAM</a>
+  <div class="tn-links">
+    <a href="{{ url_for('index') }}#app">Analyzer</a>
+    <a href="{{ url_for('about') }}">Our Story</a>
+    <a href="{{ url_for('team') }}">Team</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Two people, <em>one</em> sleepless night</h1>
+  <p class="sub">Pazham was built by two people at a TinkerHub hackathon — no team of ten, no budget, just a deadline and a bunch of bananas.</p>
+
+  <div class="grid">
+    <div class="member">
+      <div class="avatar">A</div>
+      <h3>Atul Biju</h3>
+      <div class="role">Builder</div>
+      <p>AI developer and cybersecurity enthusiast. Built the model, the data pipeline, and this site.</p>
+      <div class="links">
+        <a href="https://github.com/Atul013" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/atul-biju" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+    <div class="member">
+      <div class="avatar">A</div>
+      <h3>Amal Babu</h3>
+      <div class="role">Builder</div>
+      <p>Co-built Pazham start to finish — from buying and dissecting bananas at 3am to getting the model trained by sunrise.</p>
+      <div class="links">
+        <a href="https://github.com/Am4l-babu" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/aml02/" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="credit">
+    <p><strong>Thanks to</strong> Arpitha Bhandary, TinkerHub campus lead, who told us about the hackathon and got us in the door. She didn't build Pazham with us — she's the reason it exists at all.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="mk">PAZHAM</div>
+  <span class="tg">Banana Intelligence</span>
+  <p class="ft-copy">&copy; {{ current_year }} Pazham. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
